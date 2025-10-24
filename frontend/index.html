@@ -31,12 +31,20 @@
         <div class="row">
           <div class="col">
             <h3>1) Describe your workflow</h3>
-            <textarea id="prompt" placeholder="e.g., Automate user onboarding for new hires in sales" style="width: 429px; height: 126px;"></textarea>
-            <div style="margin-top: 8px; display:flex; gap:8px;">
+            <textarea id="prompt" placeholder="e.g., If a ticket is marked as high priority, notify the IT manager via email and assign it to the network team using SuperOps" style="width: 429px; height: 126px;"></textarea>
+            <div style="margin-top: 8px; display:flex; gap:8px; flex-wrap: wrap;">
               <button id="btn-parse">Parse</button>
               <button id="btn-generate" disabled>Generate Code</button>
               <button id="btn-test" disabled>Test</button>
               <button id="btn-deploy" disabled>Deploy</button>
+            </div>
+            <div style="margin-top: 12px; padding-top: 12px; border-top: 1px solid #22304d;">
+              <h4 style="margin: 0 0 8px 0; font-size: 14px;">SuperOps Integration</h4>
+              <div style="display:flex; gap:8px; flex-wrap: wrap;">
+                <button id="btn-test-superops">Test API</button>
+                <button id="btn-create-ticket">Create Ticket</button>
+                <button id="btn-send-notification">Send Notification</button>
+              </div>
             </div>
           </div>
           <div class="col">
@@ -86,6 +94,47 @@
       $('btn-deploy').onclick = async () => {
         $('output').textContent = 'Writing...';
         const res = await fetch('/api/deploy', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ workflow: state.workflow, code: state.code, metadata: { requestedBy: 'demo-user' } }) });
+        const data = await res.json();
+        $('output').textContent = JSON.stringify(data, null, 2);
+      };
+
+      // SuperOps integration buttons
+      $('btn-test-superops').onclick = async () => {
+        $('output').textContent = 'Testing SuperOps API connection...';
+        const res = await fetch('/api/superops/test');
+        const data = await res.json();
+        $('output').textContent = JSON.stringify(data, null, 2);
+      };
+
+      $('btn-create-ticket').onclick = async () => {
+        $('output').textContent = 'Creating demo ticket...';
+        const ticketData = {
+          title: 'Demo Ticket - High Priority Alert',
+          description: 'This is a test ticket created by the Automation Builder demo',
+          priority: 'high',
+          category: 'automation-demo'
+        };
+        const res = await fetch('/api/superops/ticket', { 
+          method:'POST', 
+          headers:{'Content-Type':'application/json'}, 
+          body: JSON.stringify(ticketData) 
+        });
+        const data = await res.json();
+        $('output').textContent = JSON.stringify(data, null, 2);
+      };
+
+      $('btn-send-notification').onclick = async () => {
+        $('output').textContent = 'Sending notification...';
+        const notificationData = {
+          ticketId: 'DEMO-' + Date.now(),
+          channel: 'email',
+          message: 'High priority ticket requires immediate attention - sent from Automation Builder'
+        };
+        const res = await fetch('/api/superops/notify', { 
+          method:'POST', 
+          headers:{'Content-Type':'application/json'}, 
+          body: JSON.stringify(notificationData) 
+        });
         const data = await res.json();
         $('output').textContent = JSON.stringify(data, null, 2);
       };

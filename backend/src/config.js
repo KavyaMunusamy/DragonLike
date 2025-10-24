@@ -2,7 +2,7 @@ import dotenv from 'dotenv';
 import path from 'path';
 
 // Load root-level .env (project root), then allow backend/.env to override
-dotenv.config({ path: path.resolve(process.cwd(), '../.env') });
+dotenv.config({ path: path.resolve(process.cwd(), '.env') });
 dotenv.config();
 
 export const config = {
@@ -17,7 +17,7 @@ export const config = {
   bedrockGeneratePath: process.env.BEDROCK_GENERATE_PATH || '/invoke',
   bedrockAgentId: process.env.BEDROCK_AGENT_ID || '',
   bedrockAgentAliasId: process.env.BEDROCK_AGENT_ALIAS_ID || '',
-  superOpsApiKey: process.env.SUPEROps_API_KEY || '',
-  superOpsBaseUrl: process.env.SUPEROps_BASE_URL || 'https://api.superops.ai',
+  superOpsApiKey: process.env.SUPEROPS_API_KEY || '',
+  superOpsBaseUrl: process.env.SUPEROPS_BASE_URL || 'https://api.superops.ai',
   dynamoTable: process.env.DYNAMO_TABLE || 'automation_templates',
 };

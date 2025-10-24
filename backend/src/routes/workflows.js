@@ -1,9 +1,8 @@
 import { Router } from 'express';
-import { parsePromptToWorkflow } from '../services/bedrock.js';
-import { generateCodeForWorkflow } from '../services/bedrock.js';
+import { generateCodeForWorkflow, parsePromptToWorkflow } from '../services/bedrock.js';
+import { listTemplates, saveTemplate } from '../services/knowledgeBase.js';
 import { runInSandbox } from '../services/sandbox.js';
 import { deployWorkflow } from '../services/stepFunctions.js';
-import { listTemplates, saveTemplate } from '../services/knowledgeBase.js';
 
 const router = Router();
 
@@ -52,6 +51,48 @@ router.get('/templates', async (_req, res) => {
   try {
     const templates = await listTemplates();
     res.json({ templates });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
+// SuperOps integration endpoints
+router.get('/superops/test', async (_req, res) => {
+  try {
+    const client = new SuperOpsClient();
+    const result = await client.testConnection();
+    res.json(result);
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
+router.post('/superops/ticket', async (req, res) => {
+  try {
+    const client = new SuperOpsClient();
+    const result = await client.createTicket(req.body);
+    res.json(result);
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
+router.post('/superops/notify', async (req, res) => {
+  try {
+    const { ticketId, channel, message } = req.body;
+    const client = new SuperOpsClient();
+    const result = await client.notifyManager(ticketId, channel, message);
+    res.json(result);
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
+router.post('/superops/user', async (req, res) => {
+  try {
+    const client = new SuperOpsClient();
+    const result = await client.createUser(req.body);
+    res.json(result);
   } catch (e) {
     res.status(500).json({ error: e.message });
   }
