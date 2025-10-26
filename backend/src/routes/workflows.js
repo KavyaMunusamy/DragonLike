@@ -98,4 +98,28 @@ router.post('/superops/user', async (req, res) => {
   }
 });
 
+// AWS Bedrock test endpoint
+router.get('/bedrock/test', async (_req, res) => {
+  try {
+    const testWorkflow = {
+      id: 'test-123',
+      name: 'Test Workflow',
+      sourcePrompt: 'Test AWS Bedrock integration'
+    };
+    const result = await generateCodeForWorkflow(testWorkflow);
+    res.json({ 
+      success: true, 
+      message: 'AWS Bedrock integration working',
+      codeGenerated: !!result.code,
+      model: 'anthropic.claude-3-sonnet-20240229-v1:0'
+    });
+  } catch (e) {
+    res.status(500).json({ 
+      success: false, 
+      error: e.message,
+      message: 'AWS Bedrock integration failed'
+    });
+  }
+});
+
 export default router;

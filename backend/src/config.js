@@ -8,6 +8,9 @@ dotenv.config();
 export const config = {
   port: process.env.PORT || 3000,
   awsRegion: process.env.AWS_REGION || 'us-east-1',
+  awsAccessKeyId: process.env.AWS_ACCESS_KEY_ID || '',
+  awsSecretAccessKey: process.env.AWS_SECRET_ACCESS_KEY || '',
+  awsSessionToken: process.env.AWS_SESSION_TOKEN || '',
   bedrockModelId: process.env.BEDROCK_MODEL_ID || 'anthropic.claude-3-sonnet-20240229-v1:0',
   bedrockApiKey: process.env.BEDROCK_API_KEY || process.env.AWS_BEARER_TOKEN_BEDROCK || '',
   bedrockHttpUrl: process.env.BEDROCK_HTTP_URL || 'https://api.bedrock.ai',

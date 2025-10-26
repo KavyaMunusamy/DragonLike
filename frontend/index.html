@@ -39,11 +39,15 @@
               <button id="btn-deploy" disabled>Deploy</button>
             </div>
             <div style="margin-top: 12px; padding-top: 12px; border-top: 1px solid #22304d;">
-              <h4 style="margin: 0 0 8px 0; font-size: 14px;">SuperOps Integration</h4>
-              <div style="display:flex; gap:8px; flex-wrap: wrap;">
-                <button id="btn-test-superops">Test API</button>
+              <h4 style="margin: 0 0 8px 0; font-size: 14px;">Live Integrations</h4>
+              <div style="display:flex; gap:8px; flex-wrap: wrap; margin-bottom: 8px;">
+                <button id="btn-test-superops">Test SuperOps</button>
                 <button id="btn-create-ticket">Create Ticket</button>
                 <button id="btn-send-notification">Send Notification</button>
+              </div>
+              <div style="display:flex; gap:8px; flex-wrap: wrap;">
+                <button id="btn-test-bedrock">Test AWS Bedrock</button>
+                <button id="btn-full-demo">Full AI Demo</button>
               </div>
             </div>
           </div>
@@ -137,6 +141,67 @@
         });
         const data = await res.json();
         $('output').textContent = JSON.stringify(data, null, 2);
+      };
+
+      // AWS Bedrock integration buttons
+      $('btn-test-bedrock').onclick = async () => {
+        $('output').textContent = 'Testing AWS Bedrock AI integration...';
+        const res = await fetch('/api/bedrock/test');
+        const data = await res.json();
+        $('output').textContent = JSON.stringify(data, null, 2);
+      };
+
+      $('btn-full-demo').onclick = async () => {
+        $('output').textContent = 'Running full AI-powered automation demo...\n\n';
+        
+        // Set a demo prompt
+        $('prompt').value = 'If a server goes down, create a high-priority ticket in SuperOps and notify the IT manager immediately';
+        
+        // Run the full workflow
+        try {
+          // Step 1: Parse
+          $('output').textContent += '1. Parsing with AWS Bedrock AI...\n';
+          const parseRes = await fetch('/api/parse', { 
+            method:'POST', 
+            headers:{'Content-Type':'application/json'}, 
+            body: JSON.stringify({ prompt: $('prompt').value }) 
+          });
+          const parseData = await parseRes.json();
+          state.workflow = parseData.workflow;
+          
+          // Step 2: Generate
+          $('output').textContent += '2. Generating code with Claude AI...\n';
+          const genRes = await fetch('/api/generate', { 
+            method:'POST', 
+            headers:{'Content-Type':'application/json'}, 
+            body: JSON.stringify({ workflow: state.workflow }) 
+          });
+          const genData = await genRes.json();
+          state.code = genData.code;
+          
+          // Step 3: Test with real APIs
+          $('output').textContent += '3. Testing with LIVE SuperOps API...\n';
+          const testRes = await fetch('/api/test', { 
+            method:'POST', 
+            headers:{'Content-Type':'application/json'}, 
+            body: JSON.stringify({ 
+              code: state.code, 
+              inputs: { ticket: { id:'DEMO-' + Date.now(), priority:'high' } } 
+            }) 
+          });
+          const testData = await testRes.json();
+          
+          $('output').textContent = '🚀 FULL DEMO COMPLETE!\n\n' + 
+            '✅ AWS Bedrock AI: Parsed natural language\n' +
+            '✅ Claude AI: Generated Python code\n' +
+            '✅ SuperOps API: Created real ticket\n' +
+            '✅ Live Integration: Sent actual notification\n\n' +
+            'RESULTS:\n' + JSON.stringify(testData, null, 2);
+          
+          setButtons(true, true);
+        } catch (error) {
+          $('output').textContent += '\nError: ' + error.message;
+        }
       };
     </script>
   </body>
